@@ -7,6 +7,25 @@ var connection = mysql.createConnection({
   'password' : 'rlawlsrb1!',
   'database' : 'TravelPlanner',
 });
+  
+/*
+ * Method       : GET
+ * Path         : http://52.34.206.80:3000/plan/list/{id}
+ * Description  : 사용자가 플랜 리스트를 불러옵니다.
+ */
+router.get('/list/:id', function(req, res, next) {
+
+  connection.query('select name, description from PlanList where id=?;', [req.params.id], function (error, cursor) {
+    if (error == null) {
+      
+      if (cursor.length != 0) {
+        res.status(200).json(cursor);
+      }
+    } else {
+      res.status(503).json({ result : false });
+    }
+  });
+});
 
 /*
  * Method       : POST
@@ -19,8 +38,8 @@ router.post('/list/add', function(req, res, next) {
   connection.query('select name from PlanList where id;', [req.body.id], function (error, cursor) {
     if (error == null) {
       if (cursor.length == 0) {
-        connection.query('insert into PlanList (id, name, describtion) values (?,?,?);', 
-                         [req.body.id, req.body.name, req.body.describtion], function (error, info) {
+        connection.query('insert into PlanList (id, name, description) values (?,?,?);', 
+                         [req.body.id, req.body.name, req.body.description], function (error, info) {
           res.status(200).json({ result : true });
         });
       } else {
@@ -45,7 +64,7 @@ router.post('/list/add', function(req, res, next) {
 router.post('/list/delete', function(req, res, next) { 
   
   // DB에 해당하는 플랜을 삭제합니다.
-  connection.query('delete from PlanList where (id, name) values (?,?);', [req.body.id, req.body.name], function (error, info) {
+  connection.query('delete from PlanList where id=? and name=?;', [req.body.id, req.body.name], function (error, info) {
     if (error == null) {
       res.status(200).json({ result : true });      
     } else {

@@ -10,6 +10,10 @@ var users = require('./routes/users');
 // 새로 추가한 route
 var join = require('./routes/join');
 var plan = require('./routes/plan');
+var login = require('./routes/login');
+var place = require('./routes/place');
+// tmap api test
+var test = require('./routes/test')
 
 var app = express();
 
@@ -30,6 +34,10 @@ app.use('/users', users);
 // 새로 추가함
 app.use('/join', join);
 app.use('/plan', plan);
+app.use('/login', login);
+app.use('/place', place);
+// tmap api test
+//app.use('/test', test);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
