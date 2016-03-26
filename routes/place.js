@@ -22,6 +22,7 @@ router.post('/add', function(req, res, next) {
   var userId = req.body.id;
   var planName = req.body.planname;
   var address = req.body.address;
+  var imgpath = req.body.imgpath;
   var itemLength = req.body.item.length;
   
   console.log(req);
@@ -39,8 +40,8 @@ router.post('/add', function(req, res, next) {
         // debug
         console.log(itemInfo[i]);
           
-        connection.query('insert into Place (id, planname, placename, address, contentid, contenttypeid, mapx, mapy, porder) values (?, ?, ?, ?, ?, ?, ?, ?, ?);',
-                         [userId, planName, itemInfo[i].placename, itemInfo[i].address, itemInfo[i].contentid, itemInfo[i].contenttypeid, itemInfo[i].mapx, itemInfo[i].mapy, i],
+        connection.query('insert into Place (id, planname, placename, address, contentid, contenttypeid, mapx, mapy, imgpath, porder) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);',
+                         [userId, planName, itemInfo[i].placename, itemInfo[i].address, itemInfo[i].contentid, itemInfo[i].contenttypeid, itemInfo[i].mapx, itemInfo[i].mapy, imgpath, i],
                            function (error, cursor) {
     
           if (!error) {
@@ -76,13 +77,14 @@ router.post('/load', function(req, res, next) {
   console.log("userId : " + userId);
   console.log("planName : " + planName);
 
-  connection.query('select * from Place where id=? && planname=?;', [userId, planName], function (error, cursor) {
+  connection.query('select * from Place where id=? && planname=? order by date desc;', [userId, planName], function (error, cursor) {
     if (cursor.length == 0) {
       // DB에 저장된 플랜의 장소가 없음
       res.status(404).json();
     } else {
       // debug
       // console.log(cursor);
+      // DB에 저장된 플랜의 장소가 있음
       res.status(200).json(cursor);
     }
   });
