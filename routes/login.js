@@ -14,7 +14,6 @@ var connection = mysql.createConnection({
  * Description  : 로그인을 합니다.
  */
 router.post('/', function(req, res, next) { 
-  
   // debug
   console.log(req.body);
   

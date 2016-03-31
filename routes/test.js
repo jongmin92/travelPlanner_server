@@ -20,12 +20,6 @@ request({
   },
   //Lets post the following key/values as form
   form: {
-    /*
-    endX: '126.7636062976',
-    endY: '37.5026717226',
-    startX: '126.9835815178',
-    startY: '37.5718842715',
-    */
     endX: endX,
     endY: endY,
     startX: startX,

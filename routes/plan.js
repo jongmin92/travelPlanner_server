@@ -15,7 +15,7 @@ var connection = mysql.createConnection({
  */
 router.get('/list/:id', function(req, res, next) {
 
-  connection.query('select name, description from PlanList where id=?;', [req.params.id], function (error, cursor) {
+  connection.query('select name, description from PlanList where id=? order by date desc;', [req.params.id], function (error, cursor) {
     if (error == null) {
       
       if (cursor.length != 0) {
