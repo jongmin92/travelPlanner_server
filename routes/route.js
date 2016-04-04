@@ -12,6 +12,10 @@ var startY;
 */
 
 exports.routeAPI = function (endX, endY, startX, startY) {
+  var property = new Object();
+  var time;
+  var distance;
+
   //Lets configure and request
   request({
     url: 'https://apis.skplanetx.com/tmap/routes?callback=&version=1',
@@ -33,10 +37,13 @@ exports.routeAPI = function (endX, endY, startX, startY) {
     if (error) {
       console.log(error);
     } else {
-      var totalTime = JSON.parse(body).features[0].properties.totalTime;
-      console.log('totalTime : ' + totalTime);
+      time = JSON.parse(body).features[0].properties.totalTime;
+      distance = JSON.parse(body).features[0].properties.totalDistance;
+      property = {"time" : time, "distance" : distance};
     }
   });
+
+  return property
 };
 
 //module.exports = router;

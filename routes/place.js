@@ -16,7 +16,7 @@ var route = require('./route.js');
  */
 router.post('/add', function (req, res, next) {
 
-  console.log("------------- req ------------- \n" + req);
+  console.log("------------- req ------------- \n");
 
   var itemInfo = new Array();
   var itemInfo = req.body.item;
@@ -26,7 +26,7 @@ router.post('/add', function (req, res, next) {
   var imgpath = req.body.imgpath;
   var itemLength = req.body.item.length;
 
-  console.log(req);
+  // console.log(req);
 
   // debug
   console.log("userId : " + userId);
@@ -39,7 +39,10 @@ router.post('/add', function (req, res, next) {
   var endY = 37.5026717226;
   var startX = 126.9835815178;
   var startY = 37.5718842715;
-  route.routeAPI(endX, endY, startX, startY);
+  var property = route.routeAPI(endX, endY, startX, startY);
+  console.log("장소간 거리 : \n" + property.distance);
+  console.log("걸리는 시간 : \n" + property.time);
+
 
   connection.query('delete from Place where id=? && planname=?;', [
     userId,
@@ -48,8 +51,8 @@ router.post('/add', function (req, res, next) {
     if (!error) {
 
       // debug
-      console.log("---출발지---\n", itemInfo[itemLength - 2]);
-      console.log("---도착지---\n", itemInfo[itemLength - 1]);
+      console.log("---출발지---\n", itemInfo[itemLength - 2].placename);
+      console.log("---도착지---\n", itemInfo[itemLength - 1].placename);
 
       for (var i = 0; i < itemLength - 2; i++) {
         // debug
