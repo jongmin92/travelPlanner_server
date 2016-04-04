@@ -36,14 +36,14 @@ router.post('/add', function(req, res, next) {
   connection.query('delete from Place where id=? && planname=?;', [userId, planName], function (error, info) {
     if (!error) {
 
+      // debug
+      console.log("---출발지---\n", itemInfo[itemLength-2]);
+      console.log("---도착지---\n", itemInfo[itemLength-1]);
+
       for (var i = 0; i < itemLength-2; i++) {
         // debug
         console.log(itemInfo[i]);
 
-        // debug
-        console.log("---출발지---\n", itemInfo[itemLength-1]);
-        console.log("---도착지---\n", itemInfo[itemLength]);
-        
         connection.query('insert into Place (id, planname, placename, address, contentid, contenttypeid, mapx, mapy, imgpath, porder) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);',
                          [userId, planName, itemInfo[i].placename, itemInfo[i].address, itemInfo[i].contentid, itemInfo[i].contenttypeid, itemInfo[i].mapx, itemInfo[i].mapy, imgpath, i],
                            function (error, cursor) {
