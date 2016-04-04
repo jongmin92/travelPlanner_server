@@ -45,7 +45,7 @@ router.post('/add', function(req, res, next) {
         console.log(itemInfo[i]);
 
         connection.query('insert into Place (id, planname, placename, address, contentid, contenttypeid, mapx, mapy, imgpath, porder) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);',
-                         [userId, planName, itemInfo[i].placename, itemInfo[i].address, itemInfo[i].contentid, itemInfo[i].contenttypeid, itemInfo[i].mapx, itemInfo[i].mapy, imgpath, i],
+                         [userId, planName, itemInfo[i].placename, itemInfo[i].address, itemInfo[i].contentid, itemInfo[i].contenttypeid, itemInfo[i].mapx, itemInfo[i].mapy, itemInfo[i].imgpath, i],
                            function (error, cursor) {
     
           if (!error) {
