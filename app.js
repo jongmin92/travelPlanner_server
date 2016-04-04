@@ -12,8 +12,8 @@ var join = require('./routes/join');
 var plan = require('./routes/plan');
 var login = require('./routes/login');
 var place = require('./routes/place');
-// tmap api test
-var test = require('./routes/test')
+// tmap api route
+//var route = require('./routes/route');
 
 var app = express();
 
@@ -37,7 +37,7 @@ app.use('/plan', plan);
 app.use('/login', login);
 app.use('/place', place);
 // tmap api test
-//app.use('/test', test);
+//app.use('/route', route);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

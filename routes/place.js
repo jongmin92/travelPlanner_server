@@ -2,18 +2,19 @@ var express = require('express');
 var mysql = require('mysql');
 var router = express.Router();
 var connection = mysql.createConnection({
-  'host' : 'aws-rds-mysql.cjj4qeglpmie.us-west-2.rds.amazonaws.com',
-  'user' : 'user',
-  'password' : 'rlawlsrb1!',
-  'database' : 'TravelPlanner',
+  'host': 'aws-rds-mysql.cjj4qeglpmie.us-west-2.rds.amazonaws.com',
+  'user': 'user',
+  'password': 'rlawlsrb1!',
+  'database': 'TravelPlanner',
 });
+var route = require('./route.js');
 
 /*
  * Method       : POST
  * Path           : http://52.34.206.80:3000/place/add
  * Description  : 사용자가 장소를 추가합니다.
  */
-router.post('/add', function(req, res, next) { 
+router.post('/add', function (req, res, next) {
 
   console.log("------------- req ------------- \n" + req);
 
@@ -24,43 +25,64 @@ router.post('/add', function(req, res, next) {
   var address = req.body.address;
   var imgpath = req.body.imgpath;
   var itemLength = req.body.item.length;
-  
+
   console.log(req);
-  
+
   // debug
   console.log("userId : " + userId);
   console.log("planName : " + planName);
   console.log("itemInfo : \n" + itemInfo);
   console.log("itemLength : " + itemLength);
-  
-  connection.query('delete from Place where id=? && planname=?;', [userId, planName], function (error, info) {
+
+  // ShortPass 알고리즘
+  var endX = 126.7636062976;
+  var endY = 37.5026717226;
+  var startX = 126.9835815178;
+  var startY = 37.5718842715;
+  route.routeAPI(endX, endY, startX, startY);
+
+  connection.query('delete from Place where id=? && planname=?;', [
+    userId,
+    planName
+  ], function (error, info) {
     if (!error) {
 
       // debug
-      console.log("---출발지---\n", itemInfo[itemLength-2]);
-      console.log("---도착지---\n", itemInfo[itemLength-1]);
+      console.log("---출발지---\n", itemInfo[itemLength - 2]);
+      console.log("---도착지---\n", itemInfo[itemLength - 1]);
 
-      for (var i = 0; i < itemLength-2; i++) {
+      for (var i = 0; i < itemLength - 2; i++) {
         // debug
         console.log(itemInfo[i]);
 
         connection.query('insert into Place (id, planname, placename, address, contentid, contenttypeid, mapx, mapy, imgpath, porder) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);',
-                         [userId, planName, itemInfo[i].placename, itemInfo[i].address, itemInfo[i].contentid, itemInfo[i].contenttypeid, itemInfo[i].mapx, itemInfo[i].mapy, itemInfo[i].imgpath, i],
-                           function (error, cursor) {
-    
-          if (!error) {
+          [
+            userId,
+            planName,
+            itemInfo[i].placename,
+            itemInfo[i].address,
+            itemInfo[i].contentid,
+            itemInfo[i].contenttypeid,
+            itemInfo[i].mapx,
+            itemInfo[i].mapy,
+            itemInfo[i].imgpath,
+            i
+          ],
+          function (error, cursor) {
 
-          } else {
-            console.log(error);
-          }
-        });
+            if (!error) {
+
+            } else {
+              console.log(error);
+            }
+          });
       }
 
     }
   });
-  
-  
-  res.status(200).json({ result : true });
+
+
+  res.status(200).json({result: true});
 });
 
 /*
@@ -68,20 +90,23 @@ router.post('/add', function(req, res, next) {
  * Path           : http://52.34.206.80:3000/place/load
  * Description  : 사용자가 장소를 장소를 불러옵니다.
  */
-router.post('/load', function(req, res, next) {
+router.post('/load', function (req, res, next) {
 
   // debug
   console.log("------------- req ------------- \n" + req);
   // console.log(req);
-  
+
   var userId = req.query.id;
   var planName = req.query.planname;
-  
+
   // debug
   console.log("userId : " + userId);
   console.log("planName : " + planName);
 
-  connection.query('select * from Place where id=? && planname=? order by date desc;', [userId, planName], function (error, cursor) {
+  connection.query('select * from Place where id=? && planname=? order by date desc;', [
+    userId,
+    planName
+  ], function (error, cursor) {
     if (cursor.length == 0) {
       // DB에 저장된 플랜의 장소가 없음
       res.status(404).json();
@@ -92,7 +117,7 @@ router.post('/load', function(req, res, next) {
       res.status(200).json(cursor);
     }
   });
-  
+
 });
 
 module.exports = router;
