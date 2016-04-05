@@ -39,7 +39,10 @@ exports.routeAPI = function (endX, endY, startX, startY) {
     } else {
       time = JSON.parse(body).features[0].properties.totalTime;
       distance = JSON.parse(body).features[0].properties.totalDistance;
-      property = {"time" : time, "distance" : distance};
+      //console.log("time = " + time);
+      //console.log("distance = " + distance);
+      property = {time: time, distance: distance};
+      console.log(property);
     }
   });
 
