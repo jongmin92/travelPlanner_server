@@ -16,9 +16,6 @@ var route = require('./route.js');
  */
 router.post('/add', function (req, res, next) {
 
-  console.log("------------- req ------------- \n");
-
-  var itemInfo = new Array();
   var itemInfo = req.body.item;
   var userId = req.body.id;
   var planName = req.body.planname;
@@ -26,24 +23,15 @@ router.post('/add', function (req, res, next) {
   var imgpath = req.body.imgpath;
   var itemLength = req.body.item.length;
 
-  // console.log(req);
-
   // debug
-  console.log("userId : " + userId);
-  console.log("planName : " + planName);
-  console.log("itemInfo : \n" + itemInfo);
-  console.log("itemLength : " + itemLength);
+  // console.log(req);
+  //console.log("userId : " + userId);
+  //console.log("planName : " + planName);
+  //console.log("itemInfo : \n" + itemInfo);
+  //console.log("itemLength : " + itemLength);
 
   // ShortPass 알고리즘
-  var endX = 126.7636062976;
-  var endY = 37.5026717226;
-  var startX = 126.9835815178;
-  var startY = 37.5718842715;
-  var property = route.routeAPI(endX, endY, startX, startY);
-  //console.log("property = ", property);
-  //console.log("장소간 거리 : \n" + property["distance"]);
-  //console.log("걸리는 시간 : \n" + property.time);
-
+  route.routeAPI(itemInfo);
 
   connection.query('delete from Place where id=? && planname=?;', [
     userId,
@@ -57,7 +45,7 @@ router.post('/add', function (req, res, next) {
 
       for (var i = 0; i < itemLength - 2; i++) {
         // debug
-        console.log(itemInfo[i]);
+        //console.log(itemInfo[i]);
 
         connection.query('insert into Place (id, planname, placename, address, contentid, contenttypeid, mapx, mapy, imgpath, porder) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);',
           [
@@ -84,7 +72,6 @@ router.post('/add', function (req, res, next) {
 
     }
   });
-
 
   res.status(200).json({result: true});
 });

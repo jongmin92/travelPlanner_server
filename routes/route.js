@@ -3,19 +3,20 @@ var express = require('express');
 //Load the request module
 var request = require('request');
 
-// TODO 진규형한테 받은 값 넣기
-/*
-var endX;
-var endY;
-var startX;
-var startY;
-*/
+exports.routeAPI = function (itemInfo) {
 
-exports.routeAPI = function (endX, endY, startX, startY) {
-  var property = new Object();
-  var time;
-  var distance;
+  //debug
+  //console.log("------ itemInfo ------\n", itemInfo);
 
+  for (var i = 0; i < itemInfo.length - 3; i++) {
+    for (var j = i + 1; j < itemInfo.length - 2; j++) {
+      getPropertyOfTwoLocation(itemInfo[i].mapx,
+        itemInfo[i].mapy, itemInfo[j].mapx, itemInfo[j].mapy);
+    }
+  }
+};
+
+var getPropertyOfTwoLocation = function (startX, startY, endX, endY) {
   //Lets configure and request
   request({
     url: 'https://apis.skplanetx.com/tmap/routes?callback=&version=1',
@@ -27,10 +28,10 @@ exports.routeAPI = function (endX, endY, startX, startY) {
     },
     //Lets post the following key/values as form
     form: {
-      endX: endX,
-      endY: endY,
       startX: startX,
       startY: startY,
+      endX: endX,
+      endY: endY,
       reqCoordType: 'WGS84GEO'
     }
   }, function (error, response, body) {
@@ -45,8 +46,6 @@ exports.routeAPI = function (endX, endY, startX, startY) {
       console.log(property);
     }
   });
-
-  return property
-};
+}
 
 //module.exports = router;
