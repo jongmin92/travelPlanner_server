@@ -31,49 +31,72 @@ router.post('/add', function (req, res, next) {
   //console.log("itemLength : " + itemLength);
 
   // ShortPass 알고리즘
-  route.routeAPI(itemInfo);
+  var routeAPI = function (itemInfo) {
+    route.routeAPI(itemInfo);
 
-  connection.query('delete from Place where id=? && planname=?;', [
-    userId,
-    planName
-  ], function (error, info) {
-    if (!error) {
+    return new Promise(function (resolved, rejected) {
+      resolved();
+    })
+  };
 
-      // debug
-      console.log("--- 출발지 : " + itemInfo[itemLength - 2].placename + "---\n");
-      console.log("--- 도착지 : " + itemInfo[itemLength - 1].placename + "---\n");
+  var insertToDB = function () {
+    return new Promise(function (resolved, rejected) {
+      var insertCnt = 0;
 
-      for (var i = 0; i < itemLength - 2; i++) {
-        // debug
-        //console.log(itemInfo[i]);
+      connection.query('delete from Place where id=? && planname=?;', [
+        userId,
+        planName
+      ], function (error, info) {
+        if (!error) {
 
-        connection.query('insert into Place (id, planname, placename, address, contentid, contenttypeid, mapx, mapy, imgpath, porder) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);',
-          [
-            userId,
-            planName,
-            itemInfo[i].placename,
-            itemInfo[i].address,
-            itemInfo[i].contentid,
-            itemInfo[i].contenttypeid,
-            itemInfo[i].mapx,
-            itemInfo[i].mapy,
-            itemInfo[i].imgpath,
-            i
-          ],
-          function (error, cursor) {
+          // debug
+          console.log("--- 출발지 : " + itemInfo[itemLength - 2].placename + "---\n");
+          console.log("--- 도착지 : " + itemInfo[itemLength - 1].placename + "---\n");
 
-            if (!error) {
+          for (var i = 0; i < itemLength - 2; i++) {
+            // debug
+            //console.log(itemInfo[i]);
 
-            } else {
-              console.log(error);
-            }
-          });
-      }
+            connection.query('insert into Place (id, planname, placename, address, contentid, contenttypeid, mapx, mapy, imgpath, porder) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);',
+              [
+                userId,
+                planName,
+                itemInfo[i].placename,
+                itemInfo[i].address,
+                itemInfo[i].contentid,
+                itemInfo[i].contenttypeid,
+                itemInfo[i].mapx,
+                itemInfo[i].mapy,
+                itemInfo[i].imgpath,
+                i
+              ],
+              function (error, cursor) {
+                if (!error) {
+                  console.log("DB Insert");
 
-    }
-  });
+                  if (++insertCnt == itemLength - 2) {
+                    console.log("DB Insert 완료");
+                    resolved(200);
+                  }
+                } else {
+                  console.log(error);
+                }
+              });
+          }
+        }
+      });
+    });
+  };
 
-  res.status(200).json({result: true});
+  var responseToClient = function (rescode) {
+    res.status(rescode).json({result: true});
+  };
+
+  var promise = routeAPI(itemInfo);
+  promise
+    .then(insertToDB)
+    .then(responseToClient);
+
 });
 
 /*
