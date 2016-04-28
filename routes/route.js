@@ -4,19 +4,20 @@ var express = require('express');
 var request = require('request');
 
 exports.routeAPI = function (itemInfo) {
-
   //debug
   //console.log("------ itemInfo ------\n", itemInfo);
+  totalCallFuncCnt = (itemInfo.length - 4) * (itemInfo.length - 3);
 
   for (var i = 0; i < itemInfo.length - 3; i++) {
     for (var j = i + 1; j < itemInfo.length - 2; j++) {
-      getPropertyOfTwoLocation(itemInfo[i].mapx,
-        itemInfo[i].mapy, itemInfo[j].mapx, itemInfo[j].mapy);
+      _getPropertyOfTwoLocation(itemInfo[i].placename, itemInfo[i].mapx,
+        itemInfo[i].mapy, itemInfo[j].placename, itemInfo[j].mapx, itemInfo[j].mapy);
     }
   }
 };
 
-var getPropertyOfTwoLocation = function (startX, startY, endX, endY) {
+var _getPropertyOfTwoLocation = function (startName, startX, startY, endName,
+  endX, endY) {
   //Lets configure and request
   request({
     url: 'https://apis.skplanetx.com/tmap/routes?callback=&version=1',
@@ -43,9 +44,11 @@ var getPropertyOfTwoLocation = function (startX, startY, endX, endY) {
       //console.log("time = " + time);
       //console.log("distance = " + distance);
       property = {time: time, distance: distance};
+
+      console.log("(" + startName + ") 과 (" + endName + ") 의 정보");
       console.log(property);
     }
   });
-}
+};
 
 //module.exports = router;

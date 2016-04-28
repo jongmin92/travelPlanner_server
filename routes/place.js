@@ -8,6 +8,7 @@ var connection = mysql.createConnection({
   'database': 'TravelPlanner',
 });
 var route = require('./route.js');
+var Promise = require('promise');
 
 /*
  * Method       : POST
@@ -36,8 +37,8 @@ router.post('/add', function (req, res, next) {
 
     return new Promise(function (resolved, rejected) {
       resolved();
-    })
-  };
+    });
+  }
 
   var insertToDB = function () {
     return new Promise(function (resolved, rejected) {
@@ -96,7 +97,6 @@ router.post('/add', function (req, res, next) {
   promise
     .then(insertToDB)
     .then(responseToClient);
-
 });
 
 /*
