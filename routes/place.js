@@ -32,16 +32,16 @@ router.post('/add', function (req, res, next) {
   //console.log("itemLength : " + itemLength);
 
   // ShortPass 알고리즘
-  var routeAPI = function (itemInfo) {
-    route.routeAPI(itemInfo);
-
-    return new Promise(function (resolved, rejected) {
-      resolved();
-    });
-  }
+  //var routeAPI = function (itemInfo) {
+  //  route.routeAPI(itemInfo);
+  //
+  //  return new Promise(function (resolved, rejected) {
+  //    resolved();
+  //  });
+  //}
 
   var insertToDB = function () {
-    return new Promise(function (resolved, rejected) {
+    //return new Promise(function (resolved, rejected) {
       var insertCnt = 0;
 
       connection.query('delete from Place where id=? && planname=?;', [
@@ -77,7 +77,7 @@ router.post('/add', function (req, res, next) {
 
                   if (++insertCnt == itemLength - 2) {
                     console.log("DB Insert 완료");
-                    resolved(200);
+                      responseToClient(200);
                   }
                 } else {
                   console.log(error);
@@ -86,17 +86,22 @@ router.post('/add', function (req, res, next) {
           }
         }
       });
-    });
+    //});
   };
 
   var responseToClient = function (rescode) {
     res.status(rescode).json({result: true});
   };
 
-  var promise = routeAPI(itemInfo);
-  promise
-    .then(insertToDB)
-    .then(responseToClient);
+  //var promise = routeAPI(itemInfo);
+  //promise
+  //  .then(insertToDB)
+  //  .then(responseToClient);
+
+  // test -----------
+  route.routeAPI(itemInfo);
+  insertToDB();
+  // test -----------
 });
 
 /*

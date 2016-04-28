@@ -3,21 +3,27 @@ var express = require('express');
 //Load the request module
 var request = require('request');
 
+var routeDatas = [];
+var totalCallFuncCnt;
+
 exports.routeAPI = function (itemInfo) {
   //debug
   //console.log("------ itemInfo ------\n", itemInfo);
-  totalCallFuncCnt = (itemInfo.length - 4) * (itemInfo.length - 3);
+  routeDatas = [];
+  totalCallFuncCnt = 0;
+  //totalCallFuncCnt = (itemInfo.length - 4) * (itemInfo.length - 3);
 
   for (var i = 0; i < itemInfo.length - 3; i++) {
     for (var j = i + 1; j < itemInfo.length - 2; j++) {
-      _getPropertyOfTwoLocation(itemInfo[i].placename, itemInfo[i].mapx,
-        itemInfo[i].mapy, itemInfo[j].placename, itemInfo[j].mapx, itemInfo[j].mapy);
+      totalCallFuncCnt++;
+      _getPropertyOfTwoLocation(i, itemInfo[i].placename, itemInfo[i].mapx,
+        itemInfo[i].mapy, j, itemInfo[j].placename, itemInfo[j].mapx, itemInfo[j].mapy);
     }
   }
 };
 
-var _getPropertyOfTwoLocation = function (startName, startX, startY, endName,
-  endX, endY) {
+var _getPropertyOfTwoLocation = function (startIndex, startName, startX, startY, endIndex,
+  endName, endX, endY) {
   //Lets configure and request
   request({
     url: 'https://apis.skplanetx.com/tmap/routes?callback=&version=1',
@@ -43,10 +49,18 @@ var _getPropertyOfTwoLocation = function (startName, startX, startY, endName,
       distance = JSON.parse(body).features[0].properties.totalDistance;
       //console.log("time = " + time);
       //console.log("distance = " + distance);
-      property = {time: time, distance: distance};
+      property = {startIndex: startIndex, startName: startName,
+                         endIndex: endIndex, endName: endName,
+                         time: time, distance: distance};
+      //console.log(property);
 
-      console.log("(" + startName + ") 과 (" + endName + ") 의 정보");
-      console.log(property);
+      routeDatas.push(property);
+
+      console.log("routeDatas.length = " + routeDatas.length);
+      console.log("totalCallFuncCnt = " + totalCallFuncCnt);
+
+      if (routeDatas.length == totalCallFuncCnt)
+        console.log(routeDatas);
     }
   });
 };
