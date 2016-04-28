@@ -54,3 +54,6 @@ Temporary Items
 .idea/vcs.xml
 .idea/workspace.xml
 .idea/libraries/TravelPlanner_Server_node_modules.xml
+ 
+# Not use anymore
+.routes/route.js
