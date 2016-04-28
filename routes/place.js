@@ -27,11 +27,8 @@ router.post('/add', function (req, res, next) {
   var totalCallFuncCnt;
 
   var routeAPI = function (itemInfo) {
-    //debug
-    //console.log("------ itemInfo ------\n", itemInfo);
     routeDatas = [];
     totalCallFuncCnt = 0;
-    //totalCallFuncCnt = (itemInfo.length - 4) * (itemInfo.length - 3);
 
     for (var i = 0; i < itemInfo.length - 3; i++) {
       for (var j = i + 1; j < itemInfo.length - 2; j++) {
@@ -99,9 +96,6 @@ router.post('/add', function (req, res, next) {
         console.log("--- 도착지 : " + itemInfo[itemLength - 1].placename + "---\n");
 
         for (var i = 0; i < itemLength - 2; i++) {
-          // debug
-          //console.log(itemInfo[i]);
-
           connection.query('insert into Place (id, planname, placename, address, contentid, contenttypeid, mapx, mapy, imgpath, porder) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);',
             [
               userId,
