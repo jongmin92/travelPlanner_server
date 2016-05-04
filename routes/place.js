@@ -31,6 +31,7 @@ router.post('/add', function (req, res, next) {
     totalCallFuncCnt = 0;
 
     for (var i = 0; i < itemInfo.length - 3; i++) {
+      routeDatas.push([]);
       for (var j = i + 1; j < itemInfo.length - 2; j++) {
         totalCallFuncCnt++;
         _getPropertyOfTwoLocation(i, itemInfo[i].placename, itemInfo[i].mapx,
@@ -43,43 +44,54 @@ router.post('/add', function (req, res, next) {
     startName, startX, startY, endIndex, endName, endX, endY) {
     //Lets configure and request
     request({
-      url: 'https://apis.skplanetx.com/tmap/routes?callback=&version=1',
-      method: 'POST',
-      headers: {
-        // 'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'application/json',
-        'appKey': '7ee755f7-eed9-3096-ab67-7083094711c9'
-      },
-      //Lets post the following key/values as form
-      form: {
-        startX: startX,
-        startY: startY,
-        endX: endX,
-        endY: endY,
-        reqCoordType: 'WGS84GEO'
-      }
-    }, function (error, response, body) {
-      if (error) {
-        console.log(error);
-      } else {
-        time = JSON.parse(body).features[0].properties.totalTime;
-        distance = JSON.parse(body).features[0].properties.totalDistance;
-        property = {
-          startIndex: startIndex, startName: startName,
-          endIndex: endIndex, endName: endName,
-          time: time, distance: distance
-        };
+        url: 'https://apis.skplanetx.com/tmap/routes?callback=&version=1',
+        method: 'POST',
+        headers: {
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+          'Accept': 'application/json',
+          'appKey': '7ee755f7-eed9-3096-ab67-7083094711c9'
+        },
+        //Lets post the following key/values as form
+        form: {
+          startX: startX,
+          startY: startY,
+          endX: endX,
+          endY: endY,
+          reqCoordType: 'WGS84GEO'
+        }
+      }, function (error, response, body) {
+        if (error) {
+          console.log(error);
+        } else {
+          time = JSON.parse(body).features[0].properties.totalTime;
+          distance = JSON.parse(body).features[0].properties.totalDistance;
+          property = {
+            startIndex: startIndex, startName: startName,
+            endIndex: endIndex, endName: endName,
+            time: time, distance: distance
+          };
 
-        routeDatas.push(property);
+          routeDatas[startIndex].push(property);
 
-        if (routeDatas.length == totalCallFuncCnt) {
-          console.log(routeDatas);
-          console.log("routeDatas.length = " + routeDatas.length);
-          console.log("----------모든 장소간의 거리 시간 받아옴----------");
-          insertToDB();
+          var routeDatasLength = 0;
+          for (var i = 0; i < itemLength - 3; i++) {
+            if (routeDatas[i]) {
+              routeDatasLength += routeDatas[i].length;
+            }
+          }
+
+          //console.log("들어옴");
+          //console.log("routeDatasLength = ", routeDatasLength);
+
+          if (routeDatasLength == totalCallFuncCnt) {
+            console.log(routeDatas);
+            console.log("routeDatas.length = " + routeDatas.length);
+            console.log("----------모든 장소간의 거리 시간 받아옴----------");
+            insertToDB();
+          }
         }
       }
-    });
+    );
   };
 
   var insertToDB = function () {
