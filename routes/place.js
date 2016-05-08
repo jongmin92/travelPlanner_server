@@ -43,7 +43,7 @@ router.post('/add', function (req, res, next) {
     startName, startX, startY, endIndex, endName, endX, endY) {
     //Lets configure and request
     request({
-      url: 'https://apis.skplanetx.com/tmap/routes?callback=&version=1',
+      url: 'https://apis.skplanetx.com/tmap/multiViaPointRoute?callback=&version=1',
       method: 'POST',
       headers: {
         // 'Content-Type': 'application/x-www-form-urlencoded',
