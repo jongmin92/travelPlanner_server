@@ -8,6 +8,8 @@ var connection = mysql.createConnection({
   'password': 'rlawlsrb1!',
   'database': 'TravelPlanner',
 });
+//var Graph = require('node-dijkstra')
+const Graph = require('node-dijkstra')
 
 /*
  * Method       : POST
@@ -25,6 +27,10 @@ router.post('/add', function (req, res, next) {
 
   var routeDatas = [];
   var totalCallFuncCnt;
+
+  // debug
+  //console.log("----------req----------");
+  //console.log(req);
 
   var routeAPI = function (itemInfo) {
     routeDatas = [];
@@ -87,14 +93,56 @@ router.post('/add', function (req, res, next) {
             console.log(routeDatas);
             console.log("routeDatas.length = " + routeDatas.length);
             console.log("----------모든 장소간의 거리 시간 받아옴----------");
-            insertToDB();
+            __makeShortestPath();
+            __insertToDB();
           }
         }
       }
     );
   };
 
-  var insertToDB = function () {
+  var __makeShortestPath = function () {
+    const short = new Graph();
+
+    for (var i = 0; i < itemInfo.length - 3; i++) {
+      var tmp = {};
+
+      for (var j = 0; j < itemInfo.length - 3 - i; j++) {
+        //var tmpendName = "'" + routeDatas[i][j].endName + "'";
+        var tmpendName = routeDatas[i][j].endName;
+        //var tmpDistance =  "'" + routeDatas[i][j].distance +  "'";
+        var tmpDistance = routeDatas[i][j].distance;
+        var tmpstartName = "'" + routeDatas[i][0].startName + "'";
+        //var tmp = '{' + tmpendName + ': ' + tmpDistance + '}';
+
+        //
+        tmp[tmpendName] = tmpDistance;
+        //
+
+        // debug
+        console.log("----------debug 시작----------");
+        console.log("tmpstartName : ", tmpstartName);
+        console.log("tmpendName : ", tmpendName);
+        console.log("tmpDistance : ", tmpDistance);
+        console.log("tmp : ", tmp);
+
+        //console.log("routeDatas[i][0].startName : ", routeDatas[i][0].startName);
+        console.log("----------debug 끝----------\n");
+      }
+      short.addNode(routeDatas[i][0].startName, tmp);
+    }
+
+    //var startplaceName = itemInfo[itemLength - 2].placename;
+    //var endplaceName = itemInfo[itemLength - 1].placename;
+    var startplaceName = "'" + itemInfo[itemLength - 2].placename + "'";
+    var endplaceName = "'" + itemInfo[itemLength - 1].placename + "'";
+    //const path = short.path(startplaceName, endplaceName, { cost : true });
+    console.log(short);
+    const path = short.path('낙원동 아구찜 거리', '청와대', {cost: true});
+    console.log(path);
+  };
+
+  var __insertToDB = function () {
     var insertCnt = 0;
 
     connection.query('delete from Place where id=? && planname=?;', [
@@ -104,8 +152,8 @@ router.post('/add', function (req, res, next) {
       if (!error) {
 
         // debug
-        console.log("--- 출발지 : " + itemInfo[itemLength - 2].placename + "---\n");
-        console.log("--- 도착지 : " + itemInfo[itemLength - 1].placename + "---\n");
+        console.log("--- 출발지 : " + itemInfo[itemLength - 2].placename + "---");
+        console.log("--- 도착지 : " + itemInfo[itemLength - 1].placename + "---");
 
         for (var i = 0; i < itemLength - 2; i++) {
           connection.query('insert into Place (id, planname, placename, address, contentid, contenttypeid, mapx, mapy, imgpath, porder) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);',
@@ -127,11 +175,11 @@ router.post('/add', function (req, res, next) {
 
                 if (++insertCnt == itemLength - 2) {
                   console.log("----------모든 장소 DB 저장 완료----------");
-                  responseToClient(200);
+                  ___responseToClient(200);
                 }
               } else {
                 console.log(error);
-                responseToClient(400);
+                ___responseToClient(400);
               }
             });
         }
@@ -139,7 +187,7 @@ router.post('/add', function (req, res, next) {
     });
   };
 
-  var responseToClient = function (rescode) {
+  var ___responseToClient = function (rescode) {
     res.status(rescode).json({result: true});
     console.log("----------서버 처리 완료----------");
   };
