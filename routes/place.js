@@ -30,12 +30,16 @@ router.post('/add', function (req, res, next) {
     routeDatas = [];
     totalCallFuncCnt = 0;
 
-    for (var i = 0; i < itemInfo.length - 3; i++) {
+    for (var i = 0; i < itemInfo.length - 2; i++) {
       routeDatas.push([]);
-      for (var j = i + 1; j < itemInfo.length - 2; j++) {
-        totalCallFuncCnt++;
-        _getPropertyOfTwoLocation(i, itemInfo[i].placename, itemInfo[i].mapx,
-          itemInfo[i].mapy, j, itemInfo[j].placename, itemInfo[j].mapx, itemInfo[j].mapy);
+      for (var j = 0; j < itemInfo.length - 2; j++) {
+
+        if (i != j) {
+          console.log("i != j 들어옴", i, j, totalCallFuncCnt + "번");
+          totalCallFuncCnt++;
+          _getPropertyOfTwoLocation(i, itemInfo[i].placename, itemInfo[i].mapx,
+            itemInfo[i].mapy, j, itemInfo[j].placename, itemInfo[j].mapx, itemInfo[j].mapy);
+        }
       }
     }
   };
