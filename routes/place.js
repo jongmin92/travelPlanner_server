@@ -16,37 +16,137 @@ var connection = mysql.createConnection({
  */
 router.post('/add', function (req, res, next) {
 
-  var itemInfo = req.body.item;
   var userId = req.body.id;
   var planName = req.body.planname;
   var address = req.body.address;
   var imgpath = req.body.imgpath;
+  var itemInfo = req.body.item;
   var itemLength = req.body.item.length;
 
   var routeDatas = [];
+  var listOfIndex = [];
   var totalCallFuncCnt;
 
   var routeAPI = function (itemInfo) {
     routeDatas = [];
+    listOfIndex = [];
     totalCallFuncCnt = 0;
 
-    for (var i = 0; i < itemInfo.length - 3; i++) {
-      for (var j = i + 1; j < itemInfo.length - 2; j++) {
-        totalCallFuncCnt++;
-        _getPropertyOfTwoLocation(i, itemInfo[i].placename, itemInfo[i].mapx,
-          itemInfo[i].mapy, j, itemInfo[j].placename, itemInfo[j].mapx, itemInfo[j].mapy);
+    //for (var i = 0; i < itemInfo.length - 3; i++) {
+    //  for (var j = i + 1; j < itemInfo.length - 2; j++) {
+    //    totalCallFuncCnt++;
+    //    _getPropertyOfTwoLocation(i, itemInfo[i].placename, itemInfo[i].mapx,
+    //      itemInfo[i].mapy, j, itemInfo[j].placename, itemInfo[j].mapx, itemInfo[j].mapy);
+    //  }
+    //}
+
+    //
+    var startX = itemInfo[0].mapx;
+    var startY = itemInfo[0].mapy;
+    var endX = itemInfo[itemLength - 1].mapx;
+    var endY = itemInfo[itemLength - 1].mapy;
+
+    // 장소가 2개일 때
+    if (itemLength == 2) {
+      _getPropertyOfLocations(startX, startY, endX, endY);
+
+    } else {
+      var indexOfDatas = [];
+
+      // 장소가 저장된 배열에서 출발, 도착지점을 제외한 장소의 Index 저장
+      for (var i = 1; i < itemLength - 1; i++) {
+        indexOfDatas.push(i);
       }
+
+      console.log("indexOfDatas = ", indexOfDatas);
+
+      // 경우의 수 구하기
+      _perm(indexOfDatas, 0, indexOfDatas.length, indexOfDatas.length);
+
+      // 모든 경우의 수로 경로 구하기
+      for (var i = 0; i < listOfIndex.length; i++) {
+        totalCallFuncCnt++;
+        _getPropertyOfLocations(startX, startY, endX, endY, listOfIndex[i]);
+      }
+
+
+      // debug
+      //console.log("-----listOfIndex -----");
+      //console.log(orderOfIndex);
+
+      //test
+      //console.log("-----listOfIndex[0])-----");
+      //console.log(orderOfIndex[0]);
+      //console.log("-----listOfIndex[0][0])-----"); console.log(orderOfIndex[0][0]);
+      //console.log("-----listOfIndex[0][1])-----"); console.log(orderOfIndex[0][1]);
+      //console.log("-----listOfIndex[0][2])-----"); console.log(orderOfIndex[0][2]);
+      //console.log("-----listOfIndex[0][3])-----"); console.log(orderOfIndex[0][3]);
+      //
+      //console.log("-----좌표 Test-----");
+      //console.log("mapx = ", itemInfo[listOfIndex[0][1]].mapx);
+      //console.log("mapy = ", itemInfo[OfIndex[0][1]].mapy);
+
+      responseToClient(200);
+
+      //totalCallFuncCnt++;
+      //_getPropertyOfLocations(startX, startY, endX, endY, indexList);
+
     }
+    //
   };
 
-  var _getPropertyOfTwoLocation = function (startIndex,
-    startName, startX, startY, endIndex, endName, endX, endY) {
+  var _perm = function (arr, depth, n, k) {
+    if (depth == k) {
+      _printf(arr, k);
+      return;
+    }
+
+    for (var i = depth; i < n; i++) {
+      _swap(arr, i, depth);
+      _perm(arr, depth + 1, n, k);
+      _swap(arr, i, depth);
+    }
+  }
+
+  var _swap = function (arr, i, j) {
+    var temp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = temp;
+  }
+
+  var _printf = function (arr, k) {
+    var tmp = [];
+
+    for (var i = 0; i < k; i++) {
+      if (i == (k - 1)) {
+        tmp.push(arr[i]);
+        listOfIndex.push(tmp);
+        //console.log(tmp);
+      } else {
+        tmp.push(arr[i]);
+      }
+    }
+  }
+
+  var _getPropertyOfLocations = function (startX, startY, endX, endY, orderOfIndex) {
     //Lets configure and request
+
+    // passList 만들기
+    var passList = "";
+
+    for (var i = 0; i < orderOfIndex.length; i++) {
+      passList = passList + itemInfo[orderOfIndex[i]].mapx + ','
+        + itemInfo[orderOfIndex[i]].mapy + ','
+        + "0,0,0_";
+    }
+
+    // debug
+    //console.log("passList =", passList);
+
     request({
-      url: 'https://apis.skplanetx.com/tmap/multiViaPointRoute?callback=&version=1',
+      url: 'https://apis.skplanetx.com/tmap/routes?callback=&version=1',
       method: 'POST',
       headers: {
-        // 'Content-Type': 'application/x-www-form-urlencoded',
         'Accept': 'application/json',
         'appKey': '7ee755f7-eed9-3096-ab67-7083094711c9'
       },
@@ -56,7 +156,8 @@ router.post('/add', function (req, res, next) {
         startY: startY,
         endX: endX,
         endY: endY,
-        reqCoordType: 'WGS84GEO'
+        reqCoordType: 'WGS84GEO',
+        passList: passList
       }
     }, function (error, response, body) {
       if (error) {
@@ -65,8 +166,7 @@ router.post('/add', function (req, res, next) {
         time = JSON.parse(body).features[0].properties.totalTime;
         distance = JSON.parse(body).features[0].properties.totalDistance;
         property = {
-          startIndex: startIndex, startName: startName,
-          endIndex: endIndex, endName: endName,
+          orderOfIndex: orderOfIndex,
           time: time, distance: distance
         };
 
@@ -75,8 +175,8 @@ router.post('/add', function (req, res, next) {
         if (routeDatas.length == totalCallFuncCnt) {
           console.log(routeDatas);
           console.log("routeDatas.length = " + routeDatas.length);
-          console.log("----------모든 장소간의 거리 시간 받아옴----------");
-          insertToDB();
+          console.log("----------모든 장소루트의 거리 시간 받아옴----------");
+          //insertToDB();
         }
       }
     });
