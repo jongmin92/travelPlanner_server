@@ -18,8 +18,8 @@ router.post('/add', function (req, res, next) {
 
   var userId = req.body.id;
   var planName = req.body.planname;
-  var address = req.body.address;
-  var imgpath = req.body.imgpath;
+  //var address = req.body.address;
+  //var imgpath = req.body.imgpath;
   var itemInfo = req.body.item;
   var itemLength = req.body.item.length;
 
@@ -69,7 +69,6 @@ router.post('/add', function (req, res, next) {
         _getPropertyOfLocations(startX, startY, endX, endY, listOfIndex[i]);
       }
 
-
       // debug
       //console.log("-----listOfIndex -----");
       //console.log(orderOfIndex);
@@ -86,13 +85,7 @@ router.post('/add', function (req, res, next) {
       //console.log("mapx = ", itemInfo[listOfIndex[0][1]].mapx);
       //console.log("mapy = ", itemInfo[OfIndex[0][1]].mapy);
 
-      responseToClient(200);
-
-      //totalCallFuncCnt++;
-      //_getPropertyOfLocations(startX, startY, endX, endY, indexList);
-
     }
-    //
   };
 
   var _perm = function (arr, depth, n, k) {
@@ -176,14 +169,41 @@ router.post('/add', function (req, res, next) {
           console.log(routeDatas);
           console.log("routeDatas.length = " + routeDatas.length);
           console.log("----------모든 장소루트의 거리 시간 받아옴----------");
-          //insertToDB();
+
+          findFastestRoute();
         }
       }
     });
   };
 
-  var insertToDB = function () {
+  var findFastestRoute = function () {
+    var fastestRoute = routeDatas[0];
+
+    for (var i = 1; i < routeDatas.length; i++) {
+      if (fastestRoute.time > routeDatas[i].time) {
+        fastestRoute = routeDatas[i];
+      }
+    }
+
+    /* test
+     // orderOfIndex 맨 앞과 맨 뒤에 DB에 들어갈 porder 넣기
+     fastestRoute.orderOfIndex.unshift(0);
+     fastestRoute.orderOfIndex.push(itemLength-1);
+     */
+
+    //debug
+    console.log("fastestRoute =", fastestRoute);
+
+    insertToDB(fastestRoute.orderOfIndex);
+  };
+
+  var insertToDB = function (orderOfIndex) {
     var insertCnt = 0;
+    var tmpOrderOfIndex = orderOfIndex;
+
+    // orderOfIndex 맨 앞과 맨 뒤에 DB에 들어갈 porder 넣기
+    tmpOrderOfIndex.unshift(0);
+    tmpOrderOfIndex.push(itemLength - 1);
 
     connection.query('delete from Place where id=? && planname=?;', [
       userId,
@@ -192,10 +212,10 @@ router.post('/add', function (req, res, next) {
       if (!error) {
 
         // debug
-        console.log("--- 출발지 : " + itemInfo[itemLength - 2].placename + "---\n");
+        console.log("--- 출발지 : " + itemInfo[0].placename + "---");
         console.log("--- 도착지 : " + itemInfo[itemLength - 1].placename + "---\n");
 
-        for (var i = 0; i < itemLength - 2; i++) {
+        for (var i = 0; i < itemLength; i++) {
           connection.query('insert into Place (id, planname, placename, address, contentid, contenttypeid, mapx, mapy, imgpath, porder) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);',
             [
               userId,
@@ -207,16 +227,17 @@ router.post('/add', function (req, res, next) {
               itemInfo[i].mapx,
               itemInfo[i].mapy,
               itemInfo[i].imgpath,
-              i
+              tmpOrderOfIndex[i]
             ],
             function (error, cursor) {
               if (!error) {
                 console.log("DB Insert");
 
-                if (++insertCnt == itemLength - 2) {
+                if (++insertCnt == itemLength) {
                   console.log("----------모든 장소 DB 저장 완료----------");
                   responseToClient(200);
                 }
+
               } else {
                 console.log(error);
                 responseToClient(400);
@@ -253,7 +274,7 @@ router.post('/load', function (req, res, next) {
   console.log("userId : " + userId);
   console.log("planName : " + planName);
 
-  connection.query('select * from Place where id=? && planname=? order by date desc;', [
+  connection.query('select * from Place where id=? && planname=? order by porder;', [
     userId,
     planName
   ], function (error, cursor) {
