@@ -194,12 +194,14 @@ router.post('/add', function (req, res, next) {
     //debug
     console.log("fastestRoute =", fastestRoute);
 
-    insertToDB(fastestRoute.orderOfIndex);
+    insertToDB(fastestRoute);
   };
 
-  var insertToDB = function (orderOfIndex) {
+  var insertToDB = function (fastestRoute) {
     var insertCnt = 0;
-    var tmpOrderOfIndex = orderOfIndex;
+    var tmpOrderOfIndex = fastestRoute.orderOfIndex;
+    var time = fastestRoute.time;
+    var distance = fastestRoute.distance;
 
     // orderOfIndex 맨 앞과 맨 뒤에 DB에 들어갈 porder 넣기
     tmpOrderOfIndex.unshift(0);
@@ -235,7 +237,15 @@ router.post('/add', function (req, res, next) {
 
                 if (++insertCnt == itemLength) {
                   console.log("----------모든 장소 DB 저장 완료----------");
-                  responseToClient(200);
+
+                  connection.query('update PlanList set distance=?, time=? where id=? && name=?;',
+                    [distance, time, userId, planName], function (error, info) {
+                      console.log("----------플랜 시간 거리 DB 저장 완료----------");
+                      responseToClient(200);
+                    });
+
+                  //        connection.query('update Confirm set confirmkey=? where email=?', [confirmkey,
+                  // req.body.email], function (error, cursor) {
                 }
 
               } else {
@@ -250,7 +260,7 @@ router.post('/add', function (req, res, next) {
 
   var responseToClient = function (rescode) {
     res.status(rescode).json({result: true});
-    console.log("----------서버 처리 완료----------");
+    console.log("----------서버 처리 완료----------\n");
   };
 
   routeAPI(itemInfo);
