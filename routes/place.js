@@ -226,7 +226,7 @@ router.post('/add', function (req, res, next) {
                 if (++insertCnt == itemLength) {
                   console.log("----------모든 장소 DB 저장 완료----------");
 
-                  connection.query('update PlanList set distance=?, time=? where id=? && name=?;',
+                  connection.query('update PlanList set alldistance=?, alltime=? where id=? && name=?;',
                     [distance, time, userId, planName], function (error, info) {
                       console.log("----------플랜 시간 거리 DB 저장 완료----------");
                       responseToClient(200);

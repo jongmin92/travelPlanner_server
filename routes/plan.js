@@ -80,12 +80,14 @@ router.post('/list/delete', function (req, res, next) {
 
 /*
  * Method       : GET
- * Path            : http://52.34.206.80:3000/plan/detail
+ * Path            : http://52.34.206.80:3000/plan/detail/{id}/{name}
  * Description  : 사용자가 플랜의 시간 거리를 불러옵니다
  */
-router.get('/list/:id', function (req, res, next) {
+router.get('/detail/:id/:name', function (req, res, next) {
+  console.log("id = ", req.params.id);
+  console.log("name = ", req.params.name);
 
-  connection.query('select distance, time from PlanList where id=? && planname=?;',
+  connection.query('select alldistance, alltime from PlanList where id=? && name=?;',
     [req.params.id, req.params.name],
     function (error, cursor) {
       if (error == null) {
