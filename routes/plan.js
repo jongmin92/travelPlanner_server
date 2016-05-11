@@ -79,16 +79,13 @@ router.post('/list/delete', function (req, res, next) {
 });
 
 /*
- * Method       : GET
- * Path            : http://52.34.206.80:3000/plan/detail/{id}/{name}
+ * Method       : POST
+ * Path            : http://52.34.206.80:3000/plan/detail
  * Description  : 사용자가 플랜의 시간 거리를 불러옵니다
  */
-router.get('/detail/:id/:name', function (req, res, next) {
-  console.log("id = ", req.params.id);
-  console.log("name = ", req.params.name);
-
+router.post('/detail', function (req, res, next) {
   connection.query('select alldistance, alltime from PlanList where id=? && name=?;',
-    [req.params.id, req.params.name],
+    [req.body.id, req.body.name],
     function (error, cursor) {
       if (error == null) {
 
