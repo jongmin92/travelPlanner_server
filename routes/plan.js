@@ -85,12 +85,12 @@ router.post('/list/delete', function (req, res, next) {
  */
 router.post('/detail', function (req, res, next) {
   connection.query('select alldistance, alltime from PlanList where id=? && name=?;',
-    [req.body.id, req.body.name],
+    [req.query.id, req.query.planname],
     function (error, cursor) {
       if (error == null) {
 
         if (cursor.length != 0) {
-          res.status(200).json(cursor);
+          res.status(200).json(cursor[0]);
         }
       } else {
         res.status(503).json({result: false});
