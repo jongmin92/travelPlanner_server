@@ -18,8 +18,6 @@ router.post('/add', function (req, res, next) {
 
   var userId = req.body.id;
   var planName = req.body.planname;
-  //var address = req.body.address;
-  //var imgpath = req.body.imgpath;
   var itemInfo = req.body.item;
   var itemLength = req.body.item.length;
 
@@ -32,15 +30,6 @@ router.post('/add', function (req, res, next) {
     listOfIndex = [];
     totalCallFuncCnt = 0;
 
-    //for (var i = 0; i < itemInfo.length - 3; i++) {
-    //  for (var j = i + 1; j < itemInfo.length - 2; j++) {
-    //    totalCallFuncCnt++;
-    //    _getPropertyOfTwoLocation(i, itemInfo[i].placename, itemInfo[i].mapx,
-    //      itemInfo[i].mapy, j, itemInfo[j].placename, itemInfo[j].mapx, itemInfo[j].mapy);
-    //  }
-    //}
-
-    //
     var startX = itemInfo[0].mapx;
     var startY = itemInfo[0].mapy;
     var endX = itemInfo[itemLength - 1].mapx;
@@ -48,7 +37,8 @@ router.post('/add', function (req, res, next) {
 
     // 장소가 2개일 때
     if (itemLength == 2) {
-      _getPropertyOfLocations(startX, startY, endX, endY);
+      totalCallFuncCnt = 1;
+      _getPropertyOfLocations(startX, startY, endX, endY, listOfIndex);
 
     } else {
       var indexOfDatas = [];
@@ -80,11 +70,9 @@ router.post('/add', function (req, res, next) {
       //console.log("-----listOfIndex[0][1])-----"); console.log(orderOfIndex[0][1]);
       //console.log("-----listOfIndex[0][2])-----"); console.log(orderOfIndex[0][2]);
       //console.log("-----listOfIndex[0][3])-----"); console.log(orderOfIndex[0][3]);
-      //
       //console.log("-----좌표 Test-----");
       //console.log("mapx = ", itemInfo[listOfIndex[0][1]].mapx);
       //console.log("mapy = ", itemInfo[OfIndex[0][1]].mapy);
-
     }
   };
 
