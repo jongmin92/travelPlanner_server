@@ -36,7 +36,7 @@ router.get('/list/:id', function (req, res, next) {
 router.post('/list/add', function (req, res, next) {
 
   // 플랜명을 DB와 비교하여 이미 존재하면 등록된 플랜명이라고 알림, 존재하지 않는다면 새로 등록합니다.
-  connection.query('select name from PlanList where id;', [req.body.id], function (error, cursor) {
+  connection.query('select name from PlanList where id=? and name=?;', [req.body.id, req.body.name], function (error, cursor) {
     if (error == null) {
       if (cursor.length == 0) {
         connection.query('insert into PlanList (id, name, description) values (?,?,?);',
@@ -44,10 +44,8 @@ router.post('/list/add', function (req, res, next) {
             res.status(200).json({result: true});
           });
       } else {
-        if (cursor.name == req.body.name) {
           // DB에 이미 해당ID의 존재하는 플랜명이 있음
           res.status(405).json({result: false, message: 'This planname already exist'});
-        }
       }
     } else {
       // debug
